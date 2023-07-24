@@ -113,7 +113,7 @@ async def handle_callback(request: Request):
 
         await line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=tool_result)
+            TextSendMessage(text='the chatbot is building')
         )
 
     return 'OK'
