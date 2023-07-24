@@ -102,8 +102,9 @@ async def handle_callback(request: Request):
             continue
         if not isinstance(event.message, TextMessage):
             continue
-
+        print(f'MESSAGE={event.message.text}')
         tool_result = agent_executor.run(event.message.text)
+        print(f'RESULT={tool_result}')
         # if event.message.text[2]=='/s':
         #     tool_result = open_ai_agent.run(event.message.text)
         # elif event.message.text[2]=='/q':
