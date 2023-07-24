@@ -6,3 +6,10 @@ openai
 yfinance
 pydantic
 tiktoken
+create_sql_agent
+SQLDatabaseToolkit
+SQLDatabase
+OpenAI
+AgentExecutor
+AgentType
+ChatOpenAI

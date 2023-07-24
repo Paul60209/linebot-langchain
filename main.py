@@ -41,6 +41,15 @@ from linebot.models import (
 
 from dotenv import load_dotenv, find_dotenv
 _ = load_dotenv(find_dotenv())  # read local .env file
+import mysql.connector
+
+from langchain.agents import create_sql_agent
+from langchain.agents.agent_toolkits import SQLDatabaseToolkit
+from langchain.sql_database import SQLDatabase
+from langchain.llms.openai import OpenAI
+from langchain.agents import AgentExecutor
+from langchain.agents.agent_types import AgentType
+from langchain.chat_models import ChatOpenAI
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('ChannelSecret', None)
@@ -60,12 +69,22 @@ parser = WebhookParser(channel_secret)
 
 # Langchain (you must use 0613 model to use OpenAI functions.)
 model = ChatOpenAI(model="gpt-3.5-turbo-0613")
+db = SQLDatabase.from_uri("mysql://root:pa$$w0rd@localhost:3306/test_db")
+
 tools = [StockPriceTool(), StockPercentageChangeTool(),
          StockGetBestPerformingTool()]
 open_ai_agent = initialize_agent(tools,
                                  model,
                                  agent=AgentType.OPENAI_FUNCTIONS,
                                  verbose=False)
+
+toolkit = SQLDatabaseToolkit(db=db, llm=model)
+agent_executor = create_sql_agent(
+    llm=model,
+    toolkit=toolkit,
+    verbose=True,
+    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+)
 
 
 @app.post("/callback")
@@ -87,7 +106,10 @@ async def handle_callback(request: Request):
         if not isinstance(event.message, TextMessage):
             continue
 
-        tool_result = open_ai_agent.run(event.message.text)
+        if event.message.text[2]=='/s':
+            tool_result = open_ai_agent.run(event.message.text)
+        elif event.message.text[2]=='/q':
+            tool_result = agent_executor.run(event.message.text)
 
         await line_bot_api.reply_message(
             event.reply_token,
