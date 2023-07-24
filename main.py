@@ -108,14 +108,16 @@ async def handle_callback(request: Request):
         if not isinstance(event.message, TextMessage):
             continue
 
-    if event.message.text[2]=='/s':
         tool_result = open_ai_agent.run(event.message.text)
-    elif event.message.text[2]=='/q':
-        tool_result = agent_executor.run(event.message.text)
+
+        # if event.message.text[2]=='/s':
+        #     tool_result = open_ai_agent.run(event.message.text)
+        # elif event.message.text[2]=='/q':
+        #     tool_result = agent_executor.run(event.message.text)
 
         await line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text='the chatbot is building')
+            TextSendMessage(text=tool_result)
         )
 
     return 'OK'
