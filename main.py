@@ -17,17 +17,14 @@ import sys
 import aiohttp
 from fastapi import Request, FastAPI, HTTPException
 from langchain.chat_models import ChatOpenAI
-from langchain.agents import AgentType
 from langchain.agents import initialize_agent, Tool
 from langchain.schema import HumanMessage
-from langchain.agents import create_sql_agent
+from langchain.agents import create_sql_agent, AgentExecutor
 from langchain.agents.agent_toolkits import SQLDatabaseToolkit
 from langchain.sql_database import SQLDatabase
 from langchain.llms.openai import OpenAI
-from langchain.agents import AgentExecutor
 from langchain.agents.agent_types import AgentType
 from langchain.chat_models import ChatOpenAI
-import mysql.connector
 
 from stock_price import StockPriceTool
 from stock_peformace import StockPercentageChangeTool, StockGetBestPerformingTool
@@ -66,14 +63,14 @@ line_bot_api = AsyncLineBotApi(channel_access_token, async_http_client)
 parser = WebhookParser(channel_secret)
 
 # Langchain (you must use 0613 model to use OpenAI functions.)
-model = ChatOpenAI(model="gpt-3.5-turbo-0613")
-
-tools = [StockPriceTool(), StockPercentageChangeTool(),
-         StockGetBestPerformingTool()]
-open_ai_agent = initialize_agent(tools,
-                                 model,
-                                 agent=AgentType.OPENAI_FUNCTIONS,
-                                 verbose=False)
+# model = ChatOpenAI(model="gpt-3.5-turbo-0613")
+#
+# tools = [StockPriceTool(), StockPercentageChangeTool(),
+#          StockGetBestPerformingTool()]
+# open_ai_agent = initialize_agent(tools,
+#                                  model,
+#                                  agent=AgentType.OPENAI_FUNCTIONS,
+#                                  verbose=False)
 
 open_ai_key = os.getenv('OPENAI_API_KEY', None)
 gpt = OpenAI(temperature=0, openai_api_key=open_ai_key, model_name='gpt-3.5-turbo')
@@ -106,8 +103,7 @@ async def handle_callback(request: Request):
         if not isinstance(event.message, TextMessage):
             continue
 
-        tool_result = open_ai_agent.run(event.message.text)
-
+        tool_result = agent_executor.run(event.message.text)
         # if event.message.text[2]=='/s':
         #     tool_result = open_ai_agent.run(event.message.text)
         # elif event.message.text[2]=='/q':
