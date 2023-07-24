@@ -69,7 +69,7 @@ parser = WebhookParser(channel_secret)
 
 # Langchain (you must use 0613 model to use OpenAI functions.)
 model = ChatOpenAI(model="gpt-3.5-turbo-0613")
-db = SQLDatabase.from_uri("mysql://root:pa$$w0rd@localhost:3306/test_db")
+db = SQLDatabase.from_uri("mysql://b467d2d7c8c911:55309bdc@us-cdbr-east-06.cleardb.net/heroku_899abf721344a77")
 
 tools = [StockPriceTool(), StockPercentageChangeTool(),
          StockGetBestPerformingTool()]
