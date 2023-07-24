@@ -7,5 +7,4 @@ yfinance
 pydantic
 tiktoken
 mysql
-langchain.llms
-langchain.agents
+psycopg2

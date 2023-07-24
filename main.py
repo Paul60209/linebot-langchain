@@ -14,12 +14,8 @@
 
 import os
 import sys
-import json
-
 import aiohttp
-
 from fastapi import Request, FastAPI, HTTPException
-
 from langchain.chat_models import ChatOpenAI
 from langchain.agents import AgentType
 from langchain.agents import initialize_agent, Tool
@@ -71,7 +67,6 @@ parser = WebhookParser(channel_secret)
 
 # Langchain (you must use 0613 model to use OpenAI functions.)
 model = ChatOpenAI(model="gpt-3.5-turbo-0613")
-db = SQLDatabase.from_uri("mysql://b467d2d7c8c911:55309bdc@us-cdbr-east-06.cleardb.net/heroku_899abf721344a77")
 
 tools = [StockPriceTool(), StockPercentageChangeTool(),
          StockGetBestPerformingTool()]
@@ -80,9 +75,12 @@ open_ai_agent = initialize_agent(tools,
                                  agent=AgentType.OPENAI_FUNCTIONS,
                                  verbose=False)
 
-toolkit = SQLDatabaseToolkit(db=db, llm=model)
+open_ai_key = os.getenv('OPENAI_API_KEY', None)
+gpt = OpenAI(temperature=0, openai_api_key=open_ai_key, model_name='gpt-3.5-turbo')
+db = SQLDatabase.from_uri("mysql://b467d2d7c8c911:55309bdc@us-cdbr-east-06.cleardb.net/heroku_899abf721344a77")
+toolkit = SQLDatabaseToolkit(db=db, llm=gpt)
 agent_executor = create_sql_agent(
-    llm=model,
+    llm=gpt,
     toolkit=toolkit,
     verbose=True,
     agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
