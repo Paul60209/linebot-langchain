@@ -27,6 +27,7 @@ from langchain.schema import HumanMessage
 
 from stock_price import StockPriceTool
 from stock_peformace import StockPercentageChangeTool, StockGetBestPerformingTool
+from sql_query import SQLQueryTool
 
 from linebot import (
     AsyncLineBotApi, WebhookParser
@@ -45,6 +46,11 @@ _ = load_dotenv(find_dotenv())  # read local .env file
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('ChannelSecret', None)
 channel_access_token = os.getenv('ChannelAccessToken', None)
+open_ai_key = os.getenv('OPENAI_API_KEY', None)
+db_url = os.getenv('CLEARDB_DATABASE_URL', None)
+
+
+
 if channel_secret is None:
     print('Specify LINE_CHANNEL_SECRET as environment variable.')
     sys.exit(1)
@@ -60,12 +66,26 @@ parser = WebhookParser(channel_secret)
 
 # Langchain (you must use 0613 model to use OpenAI functions.)
 model = ChatOpenAI(model="gpt-3.5-turbo-0613")
+
+
 tools = [StockPriceTool(), StockPercentageChangeTool(),
-         StockGetBestPerformingTool()]
+         StockGetBestPerformingTool(), SQLQueryTool()]
+
 open_ai_agent = initialize_agent(tools,
                                  model,
                                  agent=AgentType.OPENAI_FUNCTIONS,
                                  verbose=False)
+
+# llm = OpenAI(temperature=0, openai_api_key=open_ai_key, model_name='gpt-3.5-turbo')
+# db = SQLDatabase.from_uri(db_url)
+# toolkit = SQLDatabaseToolkit(db=db, llm=llm)
+# agent_executor = create_sql_agent(
+#     llm=gpt,
+#     toolkit=toolkit,
+#     verbose=True,
+#     agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+# )
+
 
 
 @app.post("/callback")
@@ -87,11 +107,20 @@ async def handle_callback(request: Request):
         if not isinstance(event.message, TextMessage):
             continue
 
+        print(f'MESSAGE={event.message.text}')
+
+        # tool_result = agent_executor.run(event.message.text)
         tool_result = open_ai_agent.run(event.message.text)
 
-        await line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=tool_result)
-        )
+        print(f'RESULT={tool_result}')
+        # if event.message.text[2]=='/s':
+        #     tool_result = open_ai_agent.run(event.message.text)
+        # elif event.message.text[2]=='/q':
+        #     tool_result = agent_executor.run(event.message.text)
+
+        # await line_bot_api.reply_message(
+        #     event.reply_token,
+        #     TextSendMessage(text=tool_result)
+        # )
 
     return 'OK'

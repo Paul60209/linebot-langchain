@@ -1,8 +1,0 @@
-line-bot-sdk
-fastapi
-uvicorn[standard]
-langchain
-openai
-yfinance
-pydantic
-tiktoken
