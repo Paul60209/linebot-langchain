@@ -15,20 +15,15 @@
 import os
 import sys
 import json
-
 import aiohttp
-
 from fastapi import Request, FastAPI, HTTPException
-
 from langchain.chat_models import ChatOpenAI
 from langchain.agents import AgentType
 from langchain.agents import initialize_agent, Tool
 from langchain.schema import HumanMessage
-
 from stock_price import StockPriceTool
 from stock_peformace import StockPercentageChangeTool, StockGetBestPerformingTool
 from sql_query import SQLQueryTool
-
 from linebot import (
     AsyncLineBotApi, WebhookParser
 )
