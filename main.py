@@ -118,9 +118,9 @@ async def handle_callback(request: Request):
         # elif event.message.text[2]=='/q':
         #     tool_result = agent_executor.run(event.message.text)
 
-        # await line_bot_api.reply_message(
-        #     event.reply_token,
-        #     TextSendMessage(text=tool_result)
-        # )
+        await line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=tool_result)
+        )
 
     return 'OK'
