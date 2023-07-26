@@ -25,7 +25,7 @@ class SQLQueryTool(BaseTool):
 
 
     def _run(self, query: str):
-        db_url = os.getenv('CLEARDB_DATABASE_URL', None)
+        db_url = os.getenv('CLEARDB_DATABASE_URL', None).split('?')[0]
         open_ai_key = os.getenv('OPENAI_API_KEY', None)
         llm = OpenAI(temperature=0, openai_api_key=open_ai_key, model_name='gpt-3.5-turbo')
 
