@@ -15,12 +15,20 @@
 import os
 import sys
 import json
+
 import aiohttp
 from fastapi import Request, FastAPI, HTTPException
 from langchain.chat_models import ChatOpenAI
-from langchain.agents import AgentType
 from langchain.agents import initialize_agent, Tool
 from langchain.schema import HumanMessage
+
+from langchain.agents import create_sql_agent, AgentExecutor
+from langchain.agents.agent_toolkits import SQLDatabaseToolkit
+from langchain.sql_database import SQLDatabase
+from langchain.llms.openai import OpenAI
+from langchain.agents.agent_types import AgentType
+from langchain.chat_models import ChatOpenAI
+
 from stock_price import StockPriceTool
 from stock_peformace import StockPercentageChangeTool, StockGetBestPerformingTool
 from sql_query import SQLQueryTool
@@ -37,6 +45,9 @@ from linebot.models import (
 
 from dotenv import load_dotenv, find_dotenv
 _ = load_dotenv(find_dotenv())  # read local .env file
+
+
+
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('ChannelSecret', None)
@@ -60,6 +71,7 @@ line_bot_api = AsyncLineBotApi(channel_access_token, async_http_client)
 parser = WebhookParser(channel_secret)
 
 # Langchain (you must use 0613 model to use OpenAI functions.)
+
 model = ChatOpenAI(model="gpt-3.5-turbo-0613")
 
 
@@ -70,6 +82,7 @@ open_ai_agent = initialize_agent(tools,
                                  model,
                                  agent=AgentType.OPENAI_FUNCTIONS,
                                  verbose=False)
+
 
 # llm = OpenAI(temperature=0, openai_api_key=open_ai_key, model_name='gpt-3.5-turbo')
 # db = SQLDatabase.from_uri(db_url)
@@ -101,11 +114,12 @@ async def handle_callback(request: Request):
             continue
         if not isinstance(event.message, TextMessage):
             continue
-
+            
         print(f'MESSAGE={event.message.text}')
 
         # tool_result = agent_executor.run(event.message.text)
         tool_result = open_ai_agent.run(event.message.text)
+
 
         print(f'RESULT={tool_result}')
         # if event.message.text[2]=='/s':
